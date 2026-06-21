@@ -4,7 +4,7 @@ dotenv.config();
 export const config = {
   port: parseInt(process.env.PORT || '4000'),
   nodeEnv: process.env.NODE_ENV || 'development',
-  mongoUri: process.env.MONGODB_URI || 'mongodb://localhost:27017/dynamique_rdc',
+  mongoUri: process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb://localhost:27017/dynamique_rdc',
   redisUrl: process.env.REDIS_URL || 'redis://localhost:6379',
   jwt: {
     secret: process.env.JWT_SECRET || 'dev_secret_change_in_prod',
