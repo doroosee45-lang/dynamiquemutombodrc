@@ -44,8 +44,14 @@ app.use(helmet({ crossOriginEmbedderPolicy: false, contentSecurityPolicy: false 
 // CORS
 app.use(cors({
   origin: (origin, cb) => {
-    const allowed = [config.frontendUrl, 'http://localhost:3000', 'http://localhost:5173', 'http://localhost:5174'];
-    if (!origin || allowed.includes(origin)) cb(null, true);
+    const allowed = [
+      config.frontendUrl,
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'http://localhost:5174',
+    ];
+    const isOnRender = origin?.endsWith('.onrender.com');
+    if (!origin || allowed.includes(origin) || isOnRender) cb(null, true);
     else cb(new Error('Not allowed by CORS'));
   },
   credentials: true,
