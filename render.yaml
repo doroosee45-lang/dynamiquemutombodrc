@@ -1,10 +1,10 @@
 services:
   # ══════════════════════════════════════════════════════
   # BACKEND — Web Service (Node.js)
-  # URL finale : https://dynamiquemutombodrc.onrender.com
+  # URL : https://dynamiquemutombodrc-1.onrender.com
   # ══════════════════════════════════════════════════════
   - type: web
-    name: dynamiquemutombodrc
+    name: dynamiquemutombodrc-1
     runtime: node
     rootDir: backend
     buildCommand: npm install && npm run build
@@ -17,7 +17,7 @@ services:
       - key: PORT
         value: 4000
       - key: FRONTEND_URL
-        value: https://dynamiquemutombodrc-frontend.onrender.com
+        value: https://dynamiquemutombodrc.onrender.com
       - key: JWT_SECRET
         generateValue: true
       - key: JWT_REFRESH_SECRET
@@ -28,7 +28,6 @@ services:
         value: 587
       - key: EMAIL_FROM
         value: "Dynamique RDC <no-reply@dynamique-rdc.cd>"
-      # ── À saisir dans le dashboard Render après création ──
       - key: MONGODB_URI
         sync: false
       - key: EMAIL_USER
@@ -40,10 +39,10 @@ services:
 
   # ══════════════════════════════════════════════════════
   # FRONTEND — Static Site (React + Vite)
-  # URL finale : https://dynamiquemutombodrc-frontend.onrender.com
+  # URL : https://dynamiquemutombodrc.onrender.com
   # ══════════════════════════════════════════════════════
   - type: static
-    name: dynamiquemutombodrc-frontend
+    name: dynamiquemutombodrc
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
@@ -54,6 +53,6 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_URL
-        value: https://dynamiquemutombodrc.onrender.com/api
+        value: https://dynamiquemutombodrc-1.onrender.com/api
       - key: VITE_SOCKET_URL
-        value: https://dynamiquemutombodrc.onrender.com
+        value: https://dynamiquemutombodrc-1.onrender.com
