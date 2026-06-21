@@ -26,6 +26,7 @@ import territoriesRoutes from './routes/territories.routes';
 import eventsRoutes from './routes/events.routes';
 import newsletterRoutes from './routes/newsletter.routes';
 import joinRoutes from './routes/join.routes';
+import setupRoutes from './routes/setup.routes';
 
 const app = express();
 app.set('trust proxy', 1); // Render / reverse proxy — use X-Forwarded-For for real client IP
@@ -78,6 +79,7 @@ app.use('/api/territories', territoriesRoutes);
 app.use('/api/events',     eventsRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/join',       joinRoutes);
+app.use('/api/setup',     setupRoutes);
 
 // Health
 app.get('/health', (_req, res) => {
