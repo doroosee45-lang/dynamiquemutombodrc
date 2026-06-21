@@ -8,6 +8,7 @@ interface UIState {
   notifications: Notification[];
   toggleSidebar: () => void;
   setSidebarOpen: (open: boolean) => void;
+  closeSidebar: () => void;
   setNotificationCount: (count: number) => void;
   setOnlineCount: (count: number) => void;
   addNotification: (notification: Notification) => void;
@@ -21,6 +22,7 @@ export const useUIStore = create<UIState>((set) => ({
   notifications: [],
   toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
   setSidebarOpen: (open) => set({ sidebarOpen: open }),
+  closeSidebar: () => set({ sidebarOpen: false }),
   setNotificationCount: (count) => set({ notificationCount: count }),
   setOnlineCount: (count) => set({ onlineCount: count }),
   addNotification: (notification) =>

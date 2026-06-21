@@ -33,11 +33,22 @@ export const TopBar: React.FC = () => {
   };
 
   return (
-    <header className={`fixed top-0 right-0 z-20 bg-white border-b border-gray-200 shadow-sm h-14
-      transition-all duration-300 ${sidebarOpen ? 'left-64' : 'left-16'}`}>
-      <div className="h-full flex items-center justify-between px-4 gap-4">
-        <div className="flex items-center gap-3">
-          <button onClick={toggleSidebar} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500">
+    <header className={`
+      fixed top-0 right-0 z-20 bg-white border-b border-gray-200 shadow-sm h-14
+      transition-all duration-300
+      left-0
+      lg:${sidebarOpen ? 'left-64' : 'left-16'}
+    `}>
+      <div className="h-full flex items-center justify-between px-3 lg:px-4 gap-2 lg:gap-4">
+
+        {/* Left: hamburger + search */}
+        <div className="flex items-center gap-2 lg:gap-3 min-w-0">
+          <button
+            type="button"
+            onClick={toggleSidebar}
+            className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 flex-shrink-0"
+            aria-label="Menu"
+          >
             <Menu size={20} />
           </button>
 
@@ -47,25 +58,27 @@ export const TopBar: React.FC = () => {
               <input
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                placeholder="Rechercher des signalements..."
-                className="pl-9 pr-4 py-1.5 text-sm border border-gray-200 rounded-lg w-64
+                placeholder="Rechercher..."
+                className="pl-9 pr-4 py-1.5 text-sm border border-gray-200 rounded-lg w-44 lg:w-64
                   focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               />
             </div>
           </form>
         </div>
 
-        <div className="flex items-center gap-3">
-          {/* Motto */}
-          <div className="hidden lg:block">
-            <p className="text-[10px] text-gray-400 italic">Unité · Résistance · Discipline · Loyauté · Engagement</p>
-          </div>
+        {/* Right: motto + notifications + avatar */}
+        <div className="flex items-center gap-2 lg:gap-3 flex-shrink-0">
+          <p className="hidden xl:block text-[10px] text-gray-400 italic">
+            Unité · Résistance · Discipline · Loyauté · Engagement
+          </p>
 
           {/* Notifications */}
           <div className="relative">
             <button
+              type="button"
               onClick={() => { setNotifOpen(!notifOpen); if (!notifOpen) markRead.mutate(); }}
               className="relative p-2 rounded-lg hover:bg-gray-100 text-gray-500"
+              aria-label="Notifications"
             >
               <Bell size={18} />
               {notifData?.unreadCount > 0 && (
@@ -76,14 +89,14 @@ export const TopBar: React.FC = () => {
             </button>
 
             {notifOpen && (
-              <div className="absolute right-0 top-10 w-80 bg-white rounded-xl shadow-xl border border-gray-200 z-50">
+              <div className="absolute right-0 top-11 w-72 sm:w-80 bg-white rounded-xl shadow-xl border border-gray-200 z-50">
                 <div className="flex items-center justify-between px-4 py-3 border-b">
                   <h3 className="font-semibold text-sm">Notifications</h3>
-                  <button onClick={() => setNotifOpen(false)} className="p-1 hover:bg-gray-100 rounded">
+                  <button type="button" onClick={() => setNotifOpen(false)} className="p-1 hover:bg-gray-100 rounded" aria-label="Fermer">
                     <X size={14} />
                   </button>
                 </div>
-                <div className="max-h-72 overflow-y-auto">
+                <div className="max-h-64 overflow-y-auto">
                   {notifData?.notifications?.length === 0 ? (
                     <p className="text-center text-gray-400 text-sm py-6">Aucune notification</p>
                   ) : (
@@ -97,8 +110,11 @@ export const TopBar: React.FC = () => {
                   )}
                 </div>
                 <div className="p-3 border-t text-center">
-                  <button onClick={() => { navigate('/notifications'); setNotifOpen(false); }}
-                    className="text-xs text-primary-600 hover:underline">
+                  <button
+                    type="button"
+                    onClick={() => { navigate('/notifications'); setNotifOpen(false); }}
+                    className="text-xs text-primary-600 hover:underline"
+                  >
                     Voir toutes les notifications
                   </button>
                 </div>
@@ -108,15 +124,19 @@ export const TopBar: React.FC = () => {
 
           {/* User avatar */}
           {user && (
-            <button onClick={() => navigate('/profile')} className="flex items-center gap-2 hover:opacity-80">
+            <button
+              type="button"
+              onClick={() => navigate('/profile')}
+              className="flex items-center gap-2 hover:opacity-80"
+            >
               {user.avatar ? (
-                <img src={user.avatar} alt={user.fullName} className="w-7 h-7 rounded-full object-cover" />
+                <img src={user.avatar} alt={user.fullName} className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
               ) : (
-                <div className="w-7 h-7 rounded-full bg-primary-600 flex items-center justify-center">
+                <div className="w-7 h-7 rounded-full bg-primary-600 flex items-center justify-center flex-shrink-0">
                   <span className="text-white text-xs font-bold">{getInitials(user.fullName)}</span>
                 </div>
               )}
-              <span className="hidden sm:block text-sm font-medium text-gray-700 max-w-[100px] truncate">
+              <span className="hidden sm:block text-sm font-medium text-gray-700 max-w-[80px] lg:max-w-[100px] truncate">
                 {user.fullName.split(' ')[0]}
               </span>
             </button>
