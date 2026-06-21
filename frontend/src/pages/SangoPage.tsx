@@ -14,7 +14,6 @@ import { publicationsAPI, eventsAPI, newsletterAPI } from '@/services/api';
 import toast from 'react-hot-toast';
 
 // ── Images locales ──────────────────────────────────────────────────────────
-// Photos réelles
 import imgRally     from '../Assettes/img/WhatsApp Image 2026-06-21 at 13.28.24.jpeg';
 import imgAssemblee from '../Assettes/img/WhatsApp Image 2026-06-21 at 13.28.40.jpeg';
 import imgReunion   from '../Assettes/img/WhatsApp Image 2026-06-21 at 13.28.44.jpeg';
@@ -22,7 +21,6 @@ import imgEquipe    from '../Assettes/img/WhatsApp Image 2026-06-21 at 13.28.45.
 import imgNational  from '../Assettes/img/WhatsApp Image 2026-06-21 at 13.28.41.jpeg';
 import imgCoord     from '../Assettes/img/WhatsApp Image 2026-06-21 at 13.28.39.jpeg';
 import imgTable     from '../Assettes/img/WhatsApp Image 2026-06-21 at 13.28.43.jpeg';
-// Affiches & campagnes provinciales
 import flyerKinshasa from '../Assettes/img/hjg.jpeg';
 import flyerCitoyen  from '../Assettes/img/WhatsApp Image 2026-06-21 at 13.28.23.jpeg';
 import flyerEveil    from '../Assettes/img/WhatsApp Image 2026-06-21 at 13.28.25.jpeg';
@@ -57,18 +55,18 @@ const CAMPAGNES = [
 ];
 
 const PUB_TYPE_LABELS: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
-  INVESTIGATION: { label: 'Enquête',    color: 'bg-purple-100 text-purple-700', icon: <Mic size={10} />        },
+  INVESTIGATION: { label: 'Enquête',    color: 'bg-purple-100 text-purple-700', icon: <Mic size={10} />           },
   ALERT:         { label: 'Alerte',     color: 'bg-red-100 text-red-700',       icon: <AlertTriangle size={10} /> },
-  COMMUNIQUE:    { label: 'Communiqué', color: 'bg-blue-100 text-blue-700',     icon: <Newspaper size={10} />  },
-  NEWS:          { label: 'Actualité',  color: 'bg-green-100 text-green-700',   icon: <Newspaper size={10} />  },
-  CAMPAIGN:      { label: 'Campagne',   color: 'bg-amber-100 text-amber-700',   icon: <Users size={10} />      },
+  COMMUNIQUE:    { label: 'Communiqué', color: 'bg-blue-100 text-blue-700',     icon: <Newspaper size={10} />     },
+  NEWS:          { label: 'Actualité',  color: 'bg-green-100 text-green-700',   icon: <Newspaper size={10} />     },
+  CAMPAIGN:      { label: 'Campagne',   color: 'bg-amber-100 text-amber-700',   icon: <Users size={10} />         },
 };
 
 const NAV_LINKS = [
-  { label: 'À propos',   href: '#about'    },
-  { label: 'Actualités', href: '#news'     },
-  { label: 'Événements', href: '#events'   },
-  { label: 'Contact',    href: '#contact'  },
+  { label: 'À propos',   href: '#about'   },
+  { label: 'Actualités', href: '#news'    },
+  { label: 'Événements', href: '#events'  },
+  { label: 'Contact',    href: '#contact' },
 ];
 
 /* ── HELPERS ───────────────────────────────────────────────────────── */
@@ -99,10 +97,21 @@ export const SangoPage: React.FC = () => {
   const [contact, setContact] = useState({ fullName: '', email: '', phone: '', subject: '', message: '' });
   const [ctLoading, setCtLoading] = useState(false);
 
+  /* Scroll listener — navbar */
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 60);
     window.addEventListener('scroll', fn);
     return () => window.removeEventListener('scroll', fn);
+  }, []);
+
+  /* Scroll-reveal — IntersectionObserver on every .reveal element */
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      (entries) => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in-view'); }),
+      { threshold: 0.1 }
+    );
+    document.querySelectorAll('.reveal, .reveal-left, .reveal-scale').forEach(el => obs.observe(el));
+    return () => obs.disconnect();
   }, []);
 
   const scrollTo = (id: string) => {
@@ -110,7 +119,7 @@ export const SangoPage: React.FC = () => {
     setMenuOpen(false);
   };
 
-  /* ── Publications live ───── */
+  /* ── Publications live ── */
   const { data: pubData } = useQuery({
     queryKey: ['public-publications'],
     queryFn: () => publicationsAPI.getAll({ limit: '6', page: '1' }).then(r => r.data),
@@ -118,7 +127,7 @@ export const SangoPage: React.FC = () => {
   });
   const publications = pubData?.publications ?? [];
 
-  /* ── Events live ─────────── */
+  /* ── Events live ── */
   const { data: evtData } = useQuery({
     queryKey: ['public-events'],
     queryFn: () => eventsAPI.getAll({ status: 'UPCOMING', limit: '4' }).then(r => r.data),
@@ -126,7 +135,7 @@ export const SangoPage: React.FC = () => {
   });
   const events = evtData?.events ?? [];
 
-  /* ── Newsletter submit ────── */
+  /* ── Newsletter submit ── */
   const handleNewsletter = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newsletter) return;
@@ -143,7 +152,7 @@ export const SangoPage: React.FC = () => {
     }
   };
 
-  /* ── Contact submit ─────── */
+  /* ── Contact submit ── */
   const handleContact = async (e: React.FormEvent) => {
     e.preventDefault();
     setCtLoading(true);
@@ -158,7 +167,6 @@ export const SangoPage: React.FC = () => {
     }
   };
 
-  /* ── Urgent publication ─── */
   const urgent = publications.find((p: { isUrgent: boolean }) => p.isUrgent);
 
   return (
@@ -183,8 +191,6 @@ export const SangoPage: React.FC = () => {
         scrolled ? 'bg-gray-900/97 backdrop-blur-md shadow-xl' : 'bg-transparent'
       }`}>
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-
-          {/* Logo */}
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
             <div className="w-9 h-9 bg-red-600 rounded-xl flex items-center justify-center shadow-lg">
               <Shield size={18} className="text-white" />
@@ -195,21 +201,15 @@ export const SangoPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Desktop nav links */}
           <div className="hidden md:flex items-center gap-1">
             {NAV_LINKS.map(l => (
-              <button
-                key={l.href}
-                type="button"
-                onClick={() => scrollTo(l.href.slice(1))}
-                className="text-white/70 hover:text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-white/10 transition-all"
-              >
+              <button key={l.href} type="button" onClick={() => scrollTo(l.href.slice(1))}
+                className="text-white/70 hover:text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-white/10 transition-all">
                 {l.label}
               </button>
             ))}
           </div>
 
-          {/* Desktop CTAs */}
           <div className="hidden md:flex items-center gap-3">
             {isAuthenticated ? (
               <button type="button" onClick={() => navigate('/dashboard')}
@@ -230,14 +230,12 @@ export const SangoPage: React.FC = () => {
             )}
           </div>
 
-          {/* Mobile toggle */}
           <button type="button" onClick={() => setMenuOpen(!menuOpen)}
             className="md:hidden p-2 text-white/70 hover:text-white" aria-label="Menu">
             {menuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
 
-        {/* Mobile menu */}
         {menuOpen && (
           <div className="md:hidden bg-gray-900 border-t border-white/10 px-6 py-4 space-y-1">
             {NAV_LINKS.map(l => (
@@ -271,12 +269,12 @@ export const SangoPage: React.FC = () => {
 
       {/* ══ HERO ════════════════════════════════════════════════════ */}
       <section className="relative min-h-screen flex items-center overflow-hidden bg-gray-900">
-        {/* Background photo */}
         <div className="absolute inset-0">
           <img
             src="https://www.mediacongo.net/cache/mutombo_israel_21_0_jpg_711_473_1_jpeg_711_473_1.jpeg"
             alt="RDC"
             className="w-full h-full object-cover opacity-25"
+            loading="eager"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-900/80 to-gray-900/50" />
         </div>
@@ -284,26 +282,24 @@ export const SangoPage: React.FC = () => {
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-600 via-red-400 to-red-600" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 pt-24 pb-16 w-full">
-          <div className="flex flex-col lg:flex-row items-center gap-14">
-
-            {/* Text */}
+          <div className="flex flex-col lg:flex-row items-center gap-10">
             <div className="flex-1 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 bg-red-600/20 border border-red-500/30 text-red-400 text-xs font-bold px-4 py-2 rounded-full mb-6 uppercase tracking-widest">
+              <div className="inline-flex items-center gap-2 bg-red-600/20 border border-red-500/30 text-red-400 text-xs font-bold px-4 py-2 rounded-full mb-5 uppercase tracking-widest">
                 <Mic size={11} /> Journaliste d'investigation — RDC
               </div>
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-white leading-[1.05] mb-2">
                 Israël<br /><span className="text-red-500">Mutombo</span>
               </h1>
               <p className="text-2xl text-gray-300 font-light italic mb-2">"Sango"</p>
-              <p className="text-gray-400 text-base leading-relaxed max-w-lg mx-auto lg:mx-0 mb-3">
+              <p className="text-gray-400 text-base leading-relaxed max-w-lg mx-auto lg:mx-0 mb-2">
                 <span className="text-amber-400 font-semibold">« Ambassadeur de la vérité, la voix des faibles »</span>
               </p>
-              <p className="text-gray-500 text-sm leading-relaxed max-w-lg mx-auto lg:mx-0 mb-8">
+              <p className="text-gray-500 text-sm leading-relaxed max-w-lg mx-auto lg:mx-0 mb-7">
                 Autorité de référence de la Dynamique Israël Mutombo — défenseur de la vérité
                 au service des 26 provinces de la République Démocratique du Congo.
               </p>
 
-              <div className="flex flex-wrap gap-3 justify-center lg:justify-start mb-8">
+              <div className="flex flex-wrap gap-3 justify-center lg:justify-start mb-7">
                 {isAuthenticated ? (
                   <button type="button" onClick={() => navigate('/dashboard')}
                     className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold px-8 py-4 rounded-2xl shadow-xl shadow-red-900/40 transition-all hover:scale-105">
@@ -329,24 +325,26 @@ export const SangoPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Photos */}
+            {/* Photos hero */}
             <div className="flex-shrink-0 flex gap-4 items-end">
-              <div className="relative w-52 h-68 rounded-3xl overflow-hidden border-4 border-white/10 shadow-2xl">
+              <div className="relative w-48 sm:w-52 h-64 sm:h-72 rounded-3xl overflow-hidden border-4 border-white/10 shadow-2xl">
                 <img
                   src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUy4j7oL2ggCxuP1ROvIAQ-yDlYkDut1gphpMBpMTDw-1zQZ3gvRcRwr4&s=10"
                   alt="Israël Mutombo"
                   className="w-full h-full object-cover object-top"
+                  loading="eager"
                 />
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
                   <p className="text-white font-bold text-sm">Israël Mutombo</p>
                   <p className="text-red-400 text-xs">Autorité de Référence</p>
                 </div>
               </div>
-              <div className="w-36 h-48 rounded-2xl overflow-hidden border-2 border-white/10 shadow-xl hidden sm:block">
+              <div className="w-32 sm:w-36 h-44 sm:h-48 rounded-2xl overflow-hidden border-2 border-white/10 shadow-xl hidden sm:block">
                 <img
                   src="https://i0.wp.com/mbote.cd/app/uploads/2025/10/IMG_7538.jpeg?resize=420%2C280&ssl=1"
                   alt="Dynamique"
                   className="w-full h-full object-cover"
+                  loading="eager"
                 />
               </div>
             </div>
@@ -360,47 +358,37 @@ export const SangoPage: React.FC = () => {
       </section>
 
       {/* ══ CITATION ════════════════════════════════════════════════ */}
-      <section className="relative bg-gradient-to-r from-red-700 to-red-600 py-14 overflow-hidden">
-        <div className="absolute top-0 left-8 opacity-10"><Quote size={120} className="text-white" /></div>
-        <div className="relative max-w-4xl mx-auto px-6 text-center">
-          <blockquote className="text-2xl md:text-3xl font-black text-white leading-tight">
+      <section className="relative bg-gradient-to-r from-red-700 to-red-600 py-10 overflow-hidden">
+        <div className="absolute top-0 left-8 opacity-10"><Quote size={100} className="text-white" /></div>
+        <div className="relative max-w-4xl mx-auto px-6 text-center reveal">
+          <blockquote className="text-xl md:text-3xl font-black text-white leading-tight">
             « Votre apport, notre apport —<br />
             <span className="text-red-200">peut être une solution et un changement pour notre pays »</span>
           </blockquote>
-          <p className="mt-4 text-red-200 text-sm font-semibold tracking-[0.2em] uppercase">— Israël Mutombo, dit Sango</p>
+          <p className="mt-3 text-red-200 text-sm font-semibold tracking-[0.2em] uppercase">— Israël Mutombo, dit Sango</p>
         </div>
       </section>
 
       {/* ══ À PROPOS ════════════════════════════════════════════════ */}
-      <section id="about" className="py-24 bg-white">
+      <section id="about" className="py-12 md:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <div className="grid lg:grid-cols-2 gap-10 items-center">
 
             {/* Photos stack */}
-            <div className="relative">
-              <div className="grid grid-cols-2 gap-4">
-                <img
-                  src={imgRally}
-                  alt="Mobilisation Kinshasa"
-                  className="rounded-2xl w-full h-56 object-cover shadow-lg"
-                />
-                <img
-                  src={imgEquipe}
-                  alt="Équipe de la Dynamique"
-                  className="rounded-2xl w-full h-56 object-cover shadow-lg mt-8"
-                />
-                <img
-                  src={imgAssemblee}
-                  alt="Grande assemblée citoyenne"
-                  className="rounded-2xl w-full h-48 object-cover shadow-lg -mt-4"
-                />
-                <div className="bg-gray-900 rounded-2xl p-6 flex flex-col justify-center mt-4">
-                  <p className="text-red-400 text-xs font-bold uppercase tracking-widest mb-2">Depuis</p>
+            <div className="relative reveal-left">
+              <div className="grid grid-cols-2 gap-3">
+                <img src={imgRally} alt="Mobilisation Kinshasa"
+                  className="rounded-2xl w-full aspect-[4/3] object-cover shadow-lg" loading="lazy" />
+                <img src={imgEquipe} alt="Équipe de la Dynamique"
+                  className="rounded-2xl w-full aspect-[4/3] object-cover shadow-lg mt-6" loading="lazy" />
+                <img src={imgAssemblee} alt="Grande assemblée citoyenne"
+                  className="rounded-2xl w-full aspect-[4/3] object-cover shadow-lg -mt-3" loading="lazy" />
+                <div className="bg-gray-900 rounded-2xl p-5 flex flex-col justify-center mt-3">
+                  <p className="text-red-400 text-xs font-bold uppercase tracking-widest mb-1">Depuis</p>
                   <p className="text-white text-4xl font-black">2026</p>
-                  <p className="text-gray-400 text-sm mt-2">Au service du peuple congolais</p>
+                  <p className="text-gray-400 text-sm mt-1">Au service du peuple congolais</p>
                 </div>
               </div>
-              {/* Badge flottant */}
               <div className="absolute -bottom-4 -right-4 bg-red-600 text-white rounded-2xl p-4 shadow-xl hidden lg:block">
                 <p className="text-3xl font-black">26</p>
                 <p className="text-red-200 text-xs">Provinces</p>
@@ -408,12 +396,12 @@ export const SangoPage: React.FC = () => {
             </div>
 
             {/* Text */}
-            <div>
-              <p className="text-red-600 text-xs font-bold uppercase tracking-[0.2em] mb-3">À propos</p>
-              <h2 className="text-4xl font-black text-gray-900 mb-6 leading-tight">
+            <div className="reveal">
+              <p className="text-red-600 text-xs font-bold uppercase tracking-[0.2em] mb-2">À propos</p>
+              <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-5 leading-tight">
                 Israël Mutombo,<br /><span className="text-red-600">dit « Sango »</span>
               </h2>
-              <div className="space-y-4 text-gray-600 leading-relaxed">
+              <div className="space-y-3 text-gray-600 leading-relaxed text-sm md:text-base">
                 <p>
                   Israël Mutombo est un <strong className="text-gray-900">journaliste d'investigation congolais</strong> dont
                   le travail est entièrement dédié à la défense de la vérité et à l'éveil de la conscience
@@ -425,18 +413,17 @@ export const SangoPage: React.FC = () => {
                   rassemblant des milliers de jeunes bénévoles engagés dans les 26 provinces du pays.
                 </p>
                 <p>
-                  Son action repose sur un triptyque fondamental : <strong className="text-gray-900">informer, dénoncer
-                  et mobiliser</strong> — pour éradiquer les anti-valeurs qui nuisent au peuple congolais et construire
+                  Son action repose sur un triptyque : <strong className="text-gray-900">informer, dénoncer
+                  et mobiliser</strong> — pour éradiquer les anti-valeurs et construire
                   un Congo fondé sur la vérité, la dignité et la justice.
                 </p>
               </div>
-
-              <div className="mt-8 grid grid-cols-2 gap-4">
+              <div className="mt-6 grid grid-cols-2 gap-3">
                 {[
-                  { label: 'Apolitique',       icon: Shield   },
-                  { label: 'Aconfessionnel',   icon: Heart    },
-                  { label: 'Transrégional',    icon: Globe    },
-                  { label: 'Volontaire',       icon: Users    },
+                  { label: 'Apolitique',     icon: Shield },
+                  { label: 'Aconfessionnel', icon: Heart  },
+                  { label: 'Transrégional',  icon: Globe  },
+                  { label: 'Volontaire',     icon: Users  },
                 ].map(({ label, icon: Icon }) => (
                   <div key={label} className="flex items-center gap-3 bg-gray-50 rounded-xl p-3">
                     <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -452,19 +439,19 @@ export const SangoPage: React.FC = () => {
       </section>
 
       {/* ══ VALEURS ═════════════════════════════════════════════════ */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-12 md:py-14 bg-gray-50">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8 reveal">
             <p className="text-red-600 text-xs font-bold uppercase tracking-[0.2em] mb-2">Les piliers</p>
             <h2 className="text-3xl font-black text-gray-900">5 Valeurs Fondamentales</h2>
-            <p className="text-gray-500 mt-2 text-sm">Unité · Résistance · Discipline · Loyauté · Engagement</p>
+            <p className="text-gray-500 mt-1 text-sm">Unité · Résistance · Discipline · Loyauté · Engagement</p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            {VALUES.map(({ label, icon: Icon, color, desc }) => (
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
+            {VALUES.map(({ label, icon: Icon, color, desc }, i) => (
               <div key={label}
-                className="group bg-white rounded-2xl border border-gray-100 shadow-sm p-6 text-center hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
-                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform`}>
-                  <Icon size={24} className="text-white" />
+                className={`reveal reveal-d${i + 1} group bg-white rounded-2xl border border-gray-100 shadow-sm p-5 text-center hover:shadow-xl hover:-translate-y-2 transition-all duration-300`}>
+                <div className={`w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center mx-auto mb-3 shadow-lg group-hover:scale-110 transition-transform`}>
+                  <Icon size={22} className="text-white" />
                 </div>
                 <p className="font-black text-gray-900 text-sm mb-1">{label}</p>
                 <p className="text-gray-400 text-[11px] leading-relaxed hidden md:block">{desc}</p>
@@ -475,28 +462,23 @@ export const SangoPage: React.FC = () => {
       </section>
 
       {/* ══ CAMPAGNES & PRÉSENCE PROVINCIALE ═══════════════════════ */}
-      <section className="py-20 bg-white overflow-hidden">
+      <section className="py-10 md:py-12 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-10">
+          <div className="text-center mb-7 reveal">
             <p className="text-red-600 text-xs font-bold uppercase tracking-[0.2em] mb-2">Sur le terrain</p>
             <h2 className="text-3xl font-black text-gray-900">Campagnes & Présence Provinciale</h2>
-            <p className="text-gray-500 text-sm mt-2">La Dynamique active dans toutes les provinces de la RDC</p>
+            <p className="text-gray-500 text-sm mt-1">La Dynamique active dans toutes les provinces de la RDC</p>
           </div>
 
-          {/* Scroll horizontal sur mobile, grille sur desktop */}
-          <div className="flex gap-5 overflow-x-auto pb-4 lg:grid lg:grid-cols-5 lg:overflow-visible scrollbar-hide">
-            {CAMPAGNES.map(({ img, titre, province }) => (
-              <div
-                key={titre}
-                className="group flex-shrink-0 w-64 lg:w-auto rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:-translate-y-1"
-              >
-                <div className="relative overflow-hidden bg-gray-100 aspect-[4/3]">
-                  <img
-                    src={img}
-                    alt={titre}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+          {/* Scroll horizontal mobile → grille desktop */}
+          <div className="flex gap-4 overflow-x-auto pb-3 lg:grid lg:grid-cols-5 lg:overflow-visible scrollbar-hide">
+            {CAMPAGNES.map(({ img, titre, province }, i) => (
+              <div key={titre}
+                className={`reveal reveal-d${i + 1} group flex-shrink-0 w-56 sm:w-64 lg:w-auto rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1`}>
+                <div className="relative overflow-hidden bg-gray-100 aspect-[3/4] sm:aspect-[4/3]">
+                  <img src={img} alt={titre} loading="lazy"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-3">
                     <span className="inline-block bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full mb-1">
                       {province}
@@ -508,24 +490,24 @@ export const SangoPage: React.FC = () => {
             ))}
           </div>
 
-          {/* Bande de photos terrain */}
-          <div className="mt-10 grid grid-cols-3 gap-3">
-            <div className="col-span-2 rounded-2xl overflow-hidden h-52 shadow-md">
-              <img src={imgCoord} alt="Équipe coordinateurs" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+          {/* Bande photos terrain */}
+          <div className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="col-span-2 rounded-2xl overflow-hidden shadow-md reveal-left">
+              <img src={imgCoord} alt="Équipe coordinateurs" loading="lazy"
+                className="w-full h-40 sm:h-52 object-cover hover:scale-105 transition-transform duration-500" />
             </div>
-            <div className="flex flex-col gap-3">
-              <div className="rounded-2xl overflow-hidden flex-1 shadow-md">
-                <img src={imgNational} alt="Membres nationaux" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
-              </div>
+            <div className="rounded-2xl overflow-hidden shadow-md reveal">
+              <img src={imgNational} alt="Membres nationaux" loading="lazy"
+                className="w-full h-40 sm:h-52 object-cover hover:scale-105 transition-transform duration-500" />
             </div>
           </div>
         </div>
       </section>
 
       {/* ══ ACTUALITÉS ══════════════════════════════════════════════ */}
-      <section id="news" className="py-24 bg-white">
+      <section id="news" className="py-12 md:py-14 bg-gray-50">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-end justify-between mb-10">
+          <div className="flex items-end justify-between mb-7 reveal">
             <div>
               <p className="text-red-600 text-xs font-bold uppercase tracking-[0.2em] mb-2">Publications</p>
               <h2 className="text-3xl font-black text-gray-900">Dernières Actualités</h2>
@@ -538,63 +520,56 @@ export const SangoPage: React.FC = () => {
           </div>
 
           {publications.length === 0 ? (
-            <div className="text-center py-16 text-gray-400">
+            <div className="text-center py-12 text-gray-400">
               <Newspaper size={40} className="mx-auto mb-3 opacity-30" />
               <p className="text-sm">Aucune publication pour le moment.</p>
             </div>
           ) : (
-            <div className="grid md:grid-cols-3 gap-6">
-              {/* Featured */}
+            <div className="grid md:grid-cols-3 gap-5">
               {publications[0] && (
                 <div
-                  className="md:col-span-2 group bg-gray-900 rounded-3xl overflow-hidden cursor-pointer hover:shadow-2xl transition-all"
+                  className="reveal md:col-span-2 group bg-gray-900 rounded-3xl overflow-hidden cursor-pointer hover:shadow-2xl transition-all"
                   onClick={() => navigate(`/feed/${(publications[0] as { _id: string })._id}`)}
                 >
                   {(publications[0] as { mediaUrls: string[] }).mediaUrls?.[0] ? (
-                    <img
-                      src={(publications[0] as { mediaUrls: string[] }).mediaUrls[0]}
+                    <img src={(publications[0] as { mediaUrls: string[] }).mediaUrls[0]}
                       alt={(publications[0] as { title: string }).title}
-                      className="w-full h-52 object-cover opacity-60 group-hover:opacity-80 transition-opacity"
-                    />
+                      className="w-full h-48 object-cover opacity-60 group-hover:opacity-80 transition-opacity" loading="lazy" />
                   ) : (
-                    <div className="w-full h-52 bg-gradient-to-br from-red-900/50 to-gray-800 flex items-center justify-center">
+                    <div className="w-full h-48 bg-gradient-to-br from-red-900/50 to-gray-800 flex items-center justify-center">
                       <Newspaper size={48} className="text-white/20" />
                     </div>
                   )}
-                  <div className="p-6">
+                  <div className="p-5">
                     {(publications[0] as { isUrgent: boolean }).isUrgent && (
-                      <span className="inline-flex items-center gap-1 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full mb-3 uppercase">
+                      <span className="inline-flex items-center gap-1 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full mb-2 uppercase">
                         <AlertTriangle size={9} /> Urgent
                       </span>
                     )}
                     {PUB_TYPE_LABELS[(publications[0] as { type: string }).type] && (
-                      <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full mb-3 ml-2 ${PUB_TYPE_LABELS[(publications[0] as { type: string }).type].color}`}>
+                      <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full mb-2 ml-2 ${PUB_TYPE_LABELS[(publications[0] as { type: string }).type].color}`}>
                         {PUB_TYPE_LABELS[(publications[0] as { type: string }).type].icon}
                         {PUB_TYPE_LABELS[(publications[0] as { type: string }).type].label}
                       </span>
                     )}
-                    <h3 className="text-white font-black text-xl leading-snug mb-2 group-hover:text-red-400 transition-colors">
+                    <h3 className="text-white font-black text-lg leading-snug mb-2 group-hover:text-red-400 transition-colors">
                       {(publications[0] as { title: string }).title}
                     </h3>
                     <p className="text-gray-400 text-sm leading-relaxed line-clamp-2">
                       {(publications[0] as { excerpt: string }).excerpt}
                     </p>
-                    <div className="mt-4 flex items-center gap-3 text-gray-500 text-xs">
-                      <Clock size={11} />
-                      {timeAgo((publications[0] as { publishedAt: string }).publishedAt)}
+                    <div className="mt-3 flex items-center gap-3 text-gray-500 text-xs">
+                      <Clock size={11} />{timeAgo((publications[0] as { publishedAt: string }).publishedAt)}
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* Side list */}
-              <div className="space-y-4">
-                {publications.slice(1, 5).map((pub: Record<string, unknown>) => (
-                  <div
-                    key={pub._id as string}
-                    className="group bg-gray-50 hover:bg-red-50 rounded-2xl p-4 cursor-pointer transition-all border border-gray-100 hover:border-red-100"
-                    onClick={() => navigate(`/feed/${pub._id as string}`)}
-                  >
+              <div className="space-y-3">
+                {publications.slice(1, 5).map((pub: Record<string, unknown>, i: number) => (
+                  <div key={pub._id as string}
+                    className={`reveal reveal-d${i + 1} group bg-white hover:bg-red-50 rounded-2xl p-4 cursor-pointer transition-all border border-gray-100 hover:border-red-100 shadow-sm`}
+                    onClick={() => navigate(`/feed/${pub._id as string}`)}>
                     <div className="flex items-start gap-3">
                       <div className="flex-1 min-w-0">
                         {PUB_TYPE_LABELS[pub.type as string] && (
@@ -625,19 +600,19 @@ export const SangoPage: React.FC = () => {
       </section>
 
       {/* ══ CHIFFRES ════════════════════════════════════════════════ */}
-      <section className="py-16 bg-gradient-to-br from-red-700 to-red-900">
+      <section className="py-10 md:py-12 bg-gradient-to-br from-red-700 to-red-900">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center text-white">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center text-white">
             {[
               { n: '26', label: 'Provinces couvertes', sub: 'Territoire national' },
               { n: '4',  label: 'Districts Kinshasa',  sub: 'Lukunga · Funa · Mont-Amba · Tshangu' },
               { n: '∞',  label: 'Citoyens engagés',    sub: 'Et ça grandit chaque jour' },
               { n: '1',  label: 'Mission commune',      sub: 'Un Congo meilleur' },
-            ].map(({ n, label, sub }) => (
-              <div key={label}>
-                <p className="text-6xl font-black">{n}</p>
+            ].map(({ n, label, sub }, i) => (
+              <div key={label} className={`reveal reveal-d${i + 1}`}>
+                <p className="text-5xl md:text-6xl font-black">{n}</p>
                 <p className="text-red-200 font-bold mt-2 text-sm">{label}</p>
-                <p className="text-red-300/50 text-xs mt-1">{sub}</p>
+                <p className="text-red-300/50 text-xs mt-1 hidden sm:block">{sub}</p>
               </div>
             ))}
           </div>
@@ -645,18 +620,22 @@ export const SangoPage: React.FC = () => {
       </section>
 
       {/* ══ GALERIE ═════════════════════════════════════════════════ */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-10 md:py-12 bg-white">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-10">
+          <div className="text-center mb-7 reveal">
             <p className="text-red-600 text-xs font-bold uppercase tracking-[0.2em] mb-2">En images</p>
             <h2 className="text-3xl font-black text-gray-900">Galerie</h2>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {GALLERY.map(({ url, caption }) => (
-              <div key={caption} className="group relative rounded-2xl overflow-hidden aspect-square shadow-sm hover:shadow-xl transition-all">
-                <img src={url} alt={caption} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-                  <p className="text-white text-sm font-semibold">{caption}</p>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+            {GALLERY.map(({ url, caption }, i) => (
+              <div key={caption}
+                className={`reveal reveal-d${(i % 3) + 1} group relative rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all`}>
+                <div className="aspect-square w-full overflow-hidden">
+                  <img src={url} alt={caption} loading="lazy"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3 md:p-4">
+                  <p className="text-white text-xs md:text-sm font-semibold">{caption}</p>
                 </div>
               </div>
             ))}
@@ -665,9 +644,9 @@ export const SangoPage: React.FC = () => {
       </section>
 
       {/* ══ ÉVÉNEMENTS ══════════════════════════════════════════════ */}
-      <section id="events" className="py-24 bg-white">
+      <section id="events" className="py-12 md:py-14 bg-gray-50">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-end justify-between mb-10">
+          <div className="flex items-end justify-between mb-7 reveal">
             <div>
               <p className="text-red-600 text-xs font-bold uppercase tracking-[0.2em] mb-2">Agenda</p>
               <h2 className="text-3xl font-black text-gray-900">Prochains Événements</h2>
@@ -676,28 +655,29 @@ export const SangoPage: React.FC = () => {
           </div>
 
           {events.length === 0 ? (
-            <div className="text-center py-16">
-              <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Calendar size={32} className="text-gray-300" />
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Calendar size={28} className="text-gray-300" />
               </div>
               <p className="text-gray-500 text-sm font-medium">Aucun événement à venir pour le moment.</p>
               <p className="text-gray-400 text-xs mt-1">Les prochains événements apparaîtront ici.</p>
             </div>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
-              {events.map((evt: Record<string, unknown>) => (
-                <div key={evt._id as string} className="group bg-gray-50 hover:bg-white rounded-2xl border border-gray-100 hover:border-red-100 hover:shadow-lg transition-all overflow-hidden">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {events.map((evt: Record<string, unknown>, i: number) => (
+                <div key={evt._id as string}
+                  className={`reveal reveal-d${i + 1} group bg-white hover:bg-white rounded-2xl border border-gray-100 hover:border-red-100 hover:shadow-lg transition-all overflow-hidden`}>
                   {evt.imageUrl ? (
-                    <img src={evt.imageUrl as string} alt={evt.title as string} className="w-full h-36 object-cover" />
+                    <img src={evt.imageUrl as string} alt={evt.title as string}
+                      className="w-full h-32 object-cover" loading="lazy" />
                   ) : (
-                    <div className="w-full h-36 bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center">
-                      <Calendar size={32} className="text-white/40" />
+                    <div className="w-full h-32 bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center">
+                      <Calendar size={28} className="text-white/40" />
                     </div>
                   )}
                   <div className="p-4">
                     <div className="flex items-center gap-1.5 text-red-600 text-xs font-bold mb-2">
-                      <Calendar size={11} />
-                      {formatDate(evt.date as string)}
+                      <Calendar size={11} />{formatDate(evt.date as string)}
                     </div>
                     <h3 className="font-black text-gray-900 text-sm leading-snug mb-2 group-hover:text-red-700 transition-colors">
                       {evt.title as string}
@@ -720,20 +700,19 @@ export const SangoPage: React.FC = () => {
       </section>
 
       {/* ══ CONTACT ═════════════════════════════════════════════════ */}
-      <section id="contact" className="py-24 bg-gray-50">
+      <section id="contact" className="py-12 md:py-14 bg-white">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8 reveal">
             <p className="text-red-600 text-xs font-bold uppercase tracking-[0.2em] mb-2">Nous contacter</p>
             <h2 className="text-3xl font-black text-gray-900">Contact & Urgences</h2>
             <p className="text-gray-500 text-sm mt-2">Pour signaler, témoigner ou rejoindre la Dynamique</p>
           </div>
 
-          <div className="grid lg:grid-cols-5 gap-10">
-
+          <div className="grid lg:grid-cols-5 gap-8">
             {/* Info urgences */}
-            <div className="lg:col-span-2 space-y-5">
-              <div className="bg-red-600 rounded-2xl p-6 text-white">
-                <div className="flex items-center gap-3 mb-4">
+            <div className="lg:col-span-2 space-y-4 reveal-left">
+              <div className="bg-red-600 rounded-2xl p-5 text-white">
+                <div className="flex items-center gap-3 mb-3">
                   <div className="w-10 h-10 bg-red-500 rounded-xl flex items-center justify-center">
                     <Phone size={18} />
                   </div>
@@ -747,22 +726,22 @@ export const SangoPage: React.FC = () => {
               </div>
 
               {[
-                { icon: Mail,  label: 'Email officiel',  value: 'contact@dynamique-rdc.cd',   sub: 'Réponse sous 48h' },
-                { icon: MapPin, label: 'Siège national',  value: 'Kinshasa, RDC',              sub: 'Comité National' },
+                { icon: Mail,   label: 'Email officiel', value: 'contact@dynamique-rdc.cd', sub: 'Réponse sous 48h'  },
+                { icon: MapPin, label: 'Siège national',  value: 'Kinshasa, RDC',            sub: 'Comité National'  },
               ].map(({ icon: Icon, label, value, sub }) => (
-                <div key={label} className="bg-white rounded-2xl border border-gray-100 p-5 flex items-start gap-4 shadow-sm">
-                  <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Icon size={16} className="text-red-600" />
+                <div key={label} className="bg-gray-50 rounded-2xl border border-gray-100 p-4 flex items-start gap-4">
+                  <div className="w-9 h-9 bg-red-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Icon size={15} className="text-red-600" />
                   </div>
                   <div>
                     <p className="text-gray-500 text-xs font-semibold uppercase">{label}</p>
-                    <p className="text-gray-900 font-bold mt-0.5">{value}</p>
+                    <p className="text-gray-900 font-bold mt-0.5 text-sm">{value}</p>
                     <p className="text-gray-400 text-xs">{sub}</p>
                   </div>
                 </div>
               ))}
 
-              <div className="bg-gray-900 rounded-2xl p-5">
+              <div className="bg-gray-900 rounded-2xl p-4">
                 <p className="text-white font-bold mb-3 text-sm">Réseaux sociaux</p>
                 <div className="flex gap-3">
                   {([
@@ -781,51 +760,41 @@ export const SangoPage: React.FC = () => {
             </div>
 
             {/* Formulaire */}
-            <div className="lg:col-span-3">
-              <form onSubmit={handleContact} className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8 space-y-5">
-                <h3 className="font-black text-gray-900 text-lg mb-2">Envoyer un message</h3>
+            <div className="lg:col-span-3 reveal">
+              <form onSubmit={handleContact} className="bg-gray-50 rounded-3xl border border-gray-100 p-6 md:p-8 space-y-4">
+                <h3 className="font-black text-gray-900 text-lg mb-1">Envoyer un message</h3>
 
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-gray-700 text-xs font-bold mb-1.5 uppercase">Nom complet *</label>
-                    <input
-                      type="text" required
-                      value={contact.fullName}
+                    <input type="text" required value={contact.fullName}
                       onChange={e => setContact(c => ({ ...c, fullName: e.target.value }))}
                       placeholder="Jean-Pierre Mukendi"
-                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
-                    />
+                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all" />
                   </div>
                   <div>
                     <label className="block text-gray-700 text-xs font-bold mb-1.5 uppercase">Email *</label>
-                    <input
-                      type="email" required
-                      value={contact.email}
+                    <input type="email" required value={contact.email}
                       onChange={e => setContact(c => ({ ...c, email: e.target.value }))}
                       placeholder="votre@email.com"
-                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
-                    />
+                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all" />
                   </div>
                 </div>
 
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-gray-700 text-xs font-bold mb-1.5 uppercase">Téléphone</label>
-                    <input
-                      type="tel"
-                      value={contact.phone}
+                    <input type="tel" value={contact.phone}
                       onChange={e => setContact(c => ({ ...c, phone: e.target.value }))}
                       placeholder="+243 XXX XXX XXX"
-                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
-                    />
+                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all" />
                   </div>
                   <div>
                     <label className="block text-gray-700 text-xs font-bold mb-1.5 uppercase">Sujet *</label>
-                    <select required
-                      value={contact.subject}
+                    <select required value={contact.subject}
                       onChange={e => setContact(c => ({ ...c, subject: e.target.value }))}
                       title="Sujet du message"
-                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all bg-white">
+                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all">
                       <option value="">Choisir un sujet</option>
                       <option>Signalement urgent</option>
                       <option>Rejoindre la Dynamique</option>
@@ -838,19 +807,18 @@ export const SangoPage: React.FC = () => {
 
                 <div>
                   <label className="block text-gray-700 text-xs font-bold mb-1.5 uppercase">Message *</label>
-                  <textarea
-                    required rows={5}
-                    value={contact.message}
+                  <textarea required rows={4} value={contact.message}
                     onChange={e => setContact(c => ({ ...c, message: e.target.value }))}
                     placeholder="Décrivez votre situation ou votre demande..."
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all resize-none"
-                  />
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all resize-none" />
                 </div>
 
                 <button type="submit" disabled={ctLoading}
                   className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white font-bold py-4 rounded-2xl text-sm shadow-lg shadow-red-200 transition-all hover:scale-[1.01]">
                   {ctLoading ? (
-                    <span className="flex items-center gap-2"><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Envoi en cours...</span>
+                    <span className="flex items-center gap-2">
+                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Envoi en cours...
+                    </span>
                   ) : (
                     <><Send size={16} /> Envoyer le message</>
                   )}
@@ -862,21 +830,21 @@ export const SangoPage: React.FC = () => {
       </section>
 
       {/* ══ CTA REJOINDRE ═══════════════════════════════════════════ */}
-      <section className="py-24 bg-gray-900">
-        <div className="max-w-3xl mx-auto px-6 text-center">
-          <div className="flex justify-center gap-1.5 mb-6">
-            {[...Array(5)].map((_, i) => <Star key={i} size={20} className="fill-amber-400 text-amber-400" />)}
+      <section className="py-14 bg-gray-900">
+        <div className="max-w-3xl mx-auto px-6 text-center reveal">
+          <div className="flex justify-center gap-1.5 mb-5">
+            {[...Array(5)].map((_, i) => <Star key={i} size={18} className="fill-amber-400 text-amber-400" />)}
           </div>
           <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
             Rejoignez le mouvement<br /><span className="text-red-400">qui change le Congo</span>
           </h2>
-          <p className="text-gray-400 mb-8 leading-relaxed">
+          <p className="text-gray-400 mb-7 leading-relaxed text-sm md:text-base">
             Signaler, dénoncer, mobiliser — ensemble nous pouvons bâtir la RDC que nous méritons.
             La Dynamique vous réserve un accueil chaleureux.
           </p>
           {isAuthenticated ? (
             <button type="button" onClick={() => navigate('/dashboard')}
-              className="inline-flex items-center gap-3 bg-red-600 hover:bg-red-700 text-white font-bold px-12 py-5 rounded-2xl text-lg shadow-2xl shadow-red-900/50 transition-all hover:scale-105">
+              className="inline-flex items-center gap-3 bg-red-600 hover:bg-red-700 text-white font-bold px-10 py-4 rounded-2xl text-base shadow-2xl shadow-red-900/50 transition-all hover:scale-105">
               Accéder à la plateforme
             </button>
           ) : (
@@ -898,23 +866,20 @@ export const SangoPage: React.FC = () => {
       <footer className="bg-black border-t border-white/5">
 
         {/* Newsletter band */}
-        <div className="bg-red-600 py-10">
+        <div className="bg-red-600 py-8">
           <div className="max-w-3xl mx-auto px-6 text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
-              <Bell size={18} className="text-white" />
-              <h3 className="text-white font-black text-lg">Restez informé</h3>
+              <Bell size={16} className="text-white" />
+              <h3 className="text-white font-black">Restez informé</h3>
             </div>
-            <p className="text-red-200 text-sm mb-5">
+            <p className="text-red-200 text-sm mb-4">
               Abonnez-vous à notre newsletter et recevez les actualités directement dans votre boîte mail.
             </p>
             <form onSubmit={handleNewsletter} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-              <input
-                type="email" required
-                value={newsletter}
+              <input type="email" required value={newsletter}
                 onChange={e => setNewsletter(e.target.value)}
                 placeholder="votre@email.com"
-                className="flex-1 bg-white/20 border border-white/30 text-white placeholder-white/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-white/50"
-              />
+                className="flex-1 bg-white/20 border border-white/30 text-white placeholder-white/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-white/50" />
               <button type="submit" disabled={nlLoading}
                 className="flex items-center justify-center gap-2 bg-white text-red-600 font-bold px-6 py-3 rounded-xl text-sm hover:bg-red-50 transition-all disabled:opacity-60 whitespace-nowrap">
                 {nlLoading ? <span className="w-4 h-4 border-2 border-red-200 border-t-red-600 rounded-full animate-spin" /> : <><Send size={14} /> S'abonner</>}
@@ -924,10 +889,8 @@ export const SangoPage: React.FC = () => {
         </div>
 
         {/* Main footer */}
-        <div className="max-w-7xl mx-auto px-6 py-14">
-          <div className="grid md:grid-cols-4 gap-10">
-
-            {/* Brand */}
+        <div className="max-w-7xl mx-auto px-6 py-10">
+          <div className="grid md:grid-cols-4 gap-8">
             <div className="md:col-span-2">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center">
@@ -957,10 +920,9 @@ export const SangoPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Navigation */}
             <div>
               <p className="text-white font-bold text-sm mb-4 uppercase tracking-widest">Navigation</p>
-              <ul className="space-y-2.5">
+              <ul className="space-y-2">
                 {[
                   { label: 'À propos',   id: 'about'   },
                   { label: 'Actualités', id: 'news'    },
@@ -977,10 +939,9 @@ export const SangoPage: React.FC = () => {
               </ul>
             </div>
 
-            {/* Plateforme */}
             <div>
               <p className="text-white font-bold text-sm mb-4 uppercase tracking-widest">Plateforme</p>
-              <ul className="space-y-2.5">
+              <ul className="space-y-2">
                 {[
                   { label: 'Signalements',      path: '/reports'     },
                   { label: "Fil d'actualité",   path: '/feed'        },
@@ -1000,15 +961,10 @@ export const SangoPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Bottom bar */}
-        <div className="border-t border-white/5 py-6">
+        <div className="border-t border-white/5 py-5">
           <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-3">
-            <p className="text-gray-600 text-xs">
-              © 2026 Dynamique Israël Mutombo · RDC · Tous droits réservés
-            </p>
-            <p className="text-gray-700 text-xs">
-              Unité · Résistance · Discipline · Loyauté · Engagement
-            </p>
+            <p className="text-gray-600 text-xs">© 2026 Dynamique Israël Mutombo · RDC · Tous droits réservés</p>
+            <p className="text-gray-700 text-xs">Unité · Résistance · Discipline · Loyauté · Engagement</p>
           </div>
         </div>
       </footer>

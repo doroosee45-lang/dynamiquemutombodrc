@@ -60,17 +60,22 @@ export const Sidebar: React.FC = () => {
 
       {/* Header: logo + collapse button */}
       <div className="flex items-center justify-between px-4 py-4 border-b border-gray-800 flex-shrink-0">
-        <div className="flex items-center gap-2 min-w-0">
+        <button
+          type="button"
+          onClick={() => navigate('/')}
+          title="Retour au site public"
+          className="flex items-center gap-2 min-w-0 hover:opacity-80 transition-opacity"
+        >
           <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center flex-shrink-0">
             <Shield size={16} className="text-white" />
           </div>
           {(sidebarOpen) && (
-            <div className="min-w-0">
+            <div className="min-w-0 text-left">
               <p className="text-white text-xs font-bold leading-tight truncate">Dynamique</p>
               <p className="text-gray-400 text-[10px] truncate">Israël Mutombo</p>
             </div>
           )}
-        </div>
+        </button>
 
         {/* X on mobile, chevron on desktop */}
         {sidebarOpen && (
@@ -84,6 +89,7 @@ export const Sidebar: React.FC = () => {
               <X size={20} />
             </button>
             <button
+              type="button"
               onClick={toggleSidebar}
               className="hidden lg:flex p-1 rounded text-gray-400 hover:text-white hover:bg-gray-800"
               aria-label="Réduire le menu"
