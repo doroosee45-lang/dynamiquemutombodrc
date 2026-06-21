@@ -83,6 +83,11 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok', db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected', timestamp: new Date().toISOString() });
 });
 
+// Root → redirect to frontend
+app.get('/', (_req, res) => {
+  res.redirect(301, config.frontendUrl);
+});
+
 // 404
 app.use((req, res) => {
   res.status(404).json({ message: `Route ${req.path} introuvable` });
