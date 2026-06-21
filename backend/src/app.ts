@@ -102,11 +102,27 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
   res.status(500).json({ message: 'Erreur interne du serveur' });
 });
 
+const connectMongo = async (): Promise<void> => {
+  const opts = { serverSelectionTimeoutMS: 8000 };
+  try {
+    await mongoose.connect(config.mongoUri, opts);
+    logger.info('MongoDB connected (Atlas)');
+  } catch {
+    const fallback = config.mongoFallbackUri;
+    if (fallback) {
+      logger.warn('Atlas inaccessible — bascule sur MongoDB local');
+      await mongoose.connect(fallback, opts);
+      logger.info('MongoDB connected (local fallback)');
+    } else {
+      throw new Error('MongoDB Atlas inaccessible et aucun fallback configuré');
+    }
+  }
+};
+
 const start = async () => {
   // MongoDB connection
   try {
-    await mongoose.connect(config.mongoUri);
-    logger.info('MongoDB connected');
+    await connectMongo();
   } catch (err) {
     logger.error('MongoDB connection failed', err);
     process.exit(1);
