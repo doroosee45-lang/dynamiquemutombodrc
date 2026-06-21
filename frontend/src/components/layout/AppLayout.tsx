@@ -40,7 +40,7 @@ export const AppLayout: React.FC = () => {
       <TopBar />
 
       <main className={`pt-14 min-h-screen transition-all duration-300
-        ml-0 lg:${sidebarOpen ? 'ml-64' : 'ml-16'}`}>
+        ml-0 ${sidebarOpen ? 'lg:ml-64' : 'lg:ml-16'}`}>
         <div className="p-4 lg:p-6">
           <Outlet />
         </div>

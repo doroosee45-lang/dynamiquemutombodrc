@@ -54,7 +54,7 @@ export const Sidebar: React.FC = () => {
     <aside className={`
       fixed inset-y-0 left-0 z-40 flex flex-col bg-gray-900
       transition-all duration-300 ease-in-out
-      w-72 lg:w-auto
+      w-72
       ${sidebarOpen ? 'translate-x-0 lg:w-64' : '-translate-x-full lg:translate-x-0 lg:w-16'}
     `}>
 

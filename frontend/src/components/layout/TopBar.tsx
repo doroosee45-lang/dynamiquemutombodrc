@@ -37,7 +37,7 @@ export const TopBar: React.FC = () => {
       fixed top-0 right-0 z-20 bg-white border-b border-gray-200 shadow-sm h-14
       transition-all duration-300
       left-0
-      lg:${sidebarOpen ? 'left-64' : 'left-16'}
+      ${sidebarOpen ? 'lg:left-64' : 'lg:left-16'}
     `}>
       <div className="h-full flex items-center justify-between px-3 lg:px-4 gap-2 lg:gap-4">
 
