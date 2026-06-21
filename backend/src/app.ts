@@ -28,6 +28,7 @@ import newsletterRoutes from './routes/newsletter.routes';
 import joinRoutes from './routes/join.routes';
 
 const app = express();
+app.set('trust proxy', 1); // Render / reverse proxy — use X-Forwarded-For for real client IP
 const httpServer = http.createServer(app);
 
 const io = initSocket(httpServer);
