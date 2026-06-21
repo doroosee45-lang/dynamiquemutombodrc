@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: dynamique-rdc-api
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      # ── À renseigner manuellement dans le dashboard Render ──────────
+      - key: MONGODB_URI
+        sync: false          # MongoDB Atlas connection string
+      - key: FRONTEND_URL
+        sync: false          # URL du frontend déployé
+      # ── Générés automatiquement par Render ──────────────────────────
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      # ── Email (Gmail / SMTP) ─────────────────────────────────────────
+      - key: EMAIL_HOST
+        value: smtp.gmail.com
+      - key: EMAIL_PORT
+        value: 587
+      - key: EMAIL_USER
+        sync: false          # votre adresse Gmail
+      - key: EMAIL_PASS
+        sync: false          # App Password Gmail (pas votre mdp)
+      - key: EMAIL_FROM
+        value: "Dynamique RDC <no-reply@dynamique-rdc.cd>"
+      # ── Redis (optionnel — l'app fonctionne sans) ────────────────────
+      # - key: REDIS_URL
+      #   sync: false
