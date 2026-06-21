@@ -4,8 +4,13 @@ import { Shield, Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { authAPI } from '@/services/api';
 import { useAuthStore } from '@/store/auth.store';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
 import toast from 'react-hot-toast';
+
+const DEMO_ACCOUNTS = [
+  { label: 'Super Admin', email: 'superadmin@dynamique-rdc.cd', password: 'SuperAdmin@Dynamique2026!', color: 'text-red-300' },
+  { label: 'Admin Kinshasa', email: 'admin.kinshasa@dynamique-rdc.cd', password: 'Admin@Dynamique2026!', color: 'text-yellow-300' },
+  { label: 'Citoyen', email: 'citoyen@example.com', password: 'Citoyen@2026!', color: 'text-green-300' },
+];
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -14,6 +19,11 @@ export const LoginPage: React.FC = () => {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [needs2FA, setNeeds2FA] = useState(false);
+
+  const fillDemo = (email: string, password: string) => {
+    setForm(f => ({ ...f, email, password }));
+    setShowPass(true);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -134,10 +144,19 @@ export const LoginPage: React.FC = () => {
 
         {/* Demo accounts */}
         <div className="mt-4 bg-white/5 rounded-xl p-4 border border-white/10">
-          <p className="text-xs text-gray-400 font-medium mb-2">Comptes de démonstration :</p>
-          <div className="space-y-1 text-xs text-gray-500">
-            <p>Admin: <span className="text-gray-300">admin@dynamique-rdc.cd / Admin@Dynamique2026!</span></p>
-            <p>Citoyen: <span className="text-gray-300">citoyen@example.com / Citoyen@2026!</span></p>
+          <p className="text-xs text-gray-400 font-medium mb-2">Comptes de démonstration — cliquez pour remplir :</p>
+          <div className="space-y-1.5">
+            {DEMO_ACCOUNTS.map(({ label, email, password, color }) => (
+              <button
+                key={email}
+                type="button"
+                onClick={() => fillDemo(email, password)}
+                className="w-full text-left text-xs rounded-lg px-3 py-1.5 bg-white/5 hover:bg-white/10 transition border border-white/10"
+              >
+                <span className={`font-semibold ${color}`}>{label}: </span>
+                <span className="text-gray-400">{email}</span>
+              </button>
+            ))}
           </div>
         </div>
 
