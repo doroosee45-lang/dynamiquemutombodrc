@@ -187,21 +187,28 @@ export const AdminDashboardPage: React.FC = () => {
             </Card>
           </div>
 
-          {/* Publications urgentes */}
-          {dashData.urgentPublications?.length > 0 && (
-            <Card>
-              <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                  <h3 className="font-semibold text-gray-800">Publications urgentes</h3>
+          {/* Publications urgentes — always visible */}
+          <Card>
+            <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className={`w-2 h-2 rounded-full ${dashData.urgentPublications?.length > 0 ? 'bg-red-500 animate-pulse' : 'bg-gray-300'}`} />
+                <h3 className="font-semibold text-gray-800">Publications urgentes</h3>
+                {dashData.urgentPublications?.length > 0 && (
                   <span className="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
                     {dashData.urgentPublications.length}
                   </span>
-                </div>
-                <button type="button" onClick={() => navigate('/feed')} className="text-xs text-primary-600">
-                  Voir toutes →
-                </button>
+                )}
               </div>
+              <button type="button" onClick={() => navigate('/feed')} className="text-xs text-primary-600">
+                Voir toutes →
+              </button>
+            </div>
+            {!dashData.urgentPublications?.length ? (
+              <div className="px-5 py-6 text-center text-gray-400 text-sm">
+                <AlertTriangle size={28} className="mx-auto mb-2 opacity-20" />
+                Aucune publication urgente en ce moment
+              </div>
+            ) : (
               <div className="divide-y divide-gray-50">
                 {dashData.urgentPublications.slice(0, 5).map((p: Record<string, unknown>) => (
                   <div key={p._id as string}
@@ -217,18 +224,18 @@ export const AdminDashboardPage: React.FC = () => {
                         </div>
                         <p className="text-sm font-medium text-gray-800 truncate">{p.title as string}</p>
                         <p className="text-xs text-gray-400 mt-0.5">
-                          {p.excerpt ? (p.excerpt as string).slice(0, 80) + '…' : ''}
+                          {(p.excerpt as string | undefined) ? (p.excerpt as string).slice(0, 80) + '…' : ''}
                         </p>
                       </div>
                       <p className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">
-                        {timeAgo(p.publishedAt as string)}
+                        {timeAgo((p.publishedAt || p.createdAt) as string)}
                       </p>
                     </div>
                   </div>
                 ))}
               </div>
-            </Card>
-          )}
+            )}
+          </Card>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {dashData.last30Days?.length > 0 && (
@@ -453,16 +460,33 @@ export const AdminDashboardPage: React.FC = () => {
             </Card>
           </div>
 
-          {/* Publications urgentes */}
-          {dashData?.urgentPublications?.length > 0 && (
-            <Card>
-              <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                <h3 className="font-semibold text-gray-800">Publications marquées Urgentes</h3>
-                <span className="bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full">
-                  {dashData.urgentPublications.length}
+          {/* Publications urgentes — always visible */}
+          <Card>
+            <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className={`w-2.5 h-2.5 rounded-full ${dashData?.urgentPublications?.length > 0 ? 'bg-red-500 animate-pulse' : 'bg-gray-300'}`} />
+                <h3 className="font-semibold text-gray-800">Publications urgentes</h3>
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${dashData?.urgentPublications?.length > 0 ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-400'}`}>
+                  {dashData?.urgentPublications?.length ?? 0}
                 </span>
               </div>
+              <button type="button" onClick={() => navigate('/feed')} className="text-xs text-primary-600">
+                Gérer →
+              </button>
+            </div>
+            {!dashData?.urgentPublications?.length ? (
+              <div className="px-5 py-8 flex flex-col items-center gap-2 text-gray-400">
+                <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+                  <AlertTriangle size={22} className="opacity-30" />
+                </div>
+                <p className="text-sm font-medium">Aucune publication urgente</p>
+                <p className="text-xs text-gray-400">Les publications marquées urgentes apparaîtront ici</p>
+                <button type="button" onClick={() => navigate('/feed/new')}
+                  className="mt-2 text-xs text-primary-600 hover:underline">
+                  Créer une publication urgente →
+                </button>
+              </div>
+            ) : (
               <div className="divide-y divide-gray-50">
                 {dashData.urgentPublications.map((p: Record<string, unknown>) => (
                   <div key={p._id as string}
@@ -479,28 +503,33 @@ export const AdminDashboardPage: React.FC = () => {
                           </span>
                         </div>
                         <p className="text-sm font-bold text-gray-800">{p.title as string}</p>
-                        {!!(p.excerpt as string) && (
+                        {(p.excerpt as string | undefined) && (
                           <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{p.excerpt as string}</p>
                         )}
                       </div>
                       <div className="flex-shrink-0 text-right">
-                        <p className="text-xs text-gray-400">{timeAgo(p.publishedAt as string)}</p>
+                        <p className="text-xs text-gray-400">
+                          {timeAgo((p.publishedAt || p.createdAt) as string)}
+                        </p>
                         <Newspaper size={14} className="text-gray-300 mt-1 ml-auto" />
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
-            </Card>
-          )}
+            )}
+          </Card>
 
-          {/* Messages de contact */}
+          {/* Messages de contact — urgent en premier */}
           <Card>
             <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <h3 className="font-semibold text-gray-800">Messages du formulaire de contact</h3>
+                <h3 className="font-semibold text-gray-800">Messages reçus</h3>
+                <span className="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full">
+                  {contactData?.total ?? 0}
+                </span>
                 {contactData?.unread > 0 && (
-                  <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                  <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
                     {contactData.unread} non lus
                   </span>
                 )}
@@ -510,7 +539,8 @@ export const AdminDashboardPage: React.FC = () => {
             {!contactData?.messages?.length ? (
               <div className="p-10 text-center text-gray-400">
                 <MessageSquare size={36} className="mx-auto mb-3 opacity-30" />
-                <p className="text-sm">Aucun message reçu pour le moment.</p>
+                <p className="text-sm font-medium">Aucun message reçu pour le moment</p>
+                <p className="text-xs mt-1">Les messages du formulaire de contact apparaîtront ici</p>
               </div>
             ) : (
               <div className="divide-y divide-gray-50">

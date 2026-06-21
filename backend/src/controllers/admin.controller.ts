@@ -133,11 +133,11 @@ export const getDashboard = async (_req: Request, res: Response): Promise<void> 
         { $group: { _id: '$province', count: { $sum: 1 } } },
         { $sort: { count: -1 } },
       ]),
-      Publication.find({ isUrgent: true }).sort({ publishedAt: -1 }).limit(10)
-        .select('title excerpt type publishedAt author')
+      Publication.find({ isUrgent: true }).sort({ createdAt: -1 }).limit(10)
+        .select('title excerpt type publishedAt createdAt author')
         .populate('author', 'fullName')
         .lean(),
-      Contact.find().sort({ createdAt: -1 }).limit(15).lean(),
+      Contact.find().sort({ isUrgent: -1, createdAt: -1 }).limit(20).lean(),
     ]);
 
     res.json({
