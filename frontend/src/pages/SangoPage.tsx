@@ -13,6 +13,22 @@ import { useAuthStore } from '@/store/auth.store';
 import { publicationsAPI, eventsAPI, newsletterAPI } from '@/services/api';
 import toast from 'react-hot-toast';
 
+// ── Images locales ──────────────────────────────────────────────────────────
+// Photos réelles
+import imgRally     from '../Assettes/img/WhatsApp Image 2026-06-21 at 13.28.24.jpeg';
+import imgAssemblee from '../Assettes/img/WhatsApp Image 2026-06-21 at 13.28.40.jpeg';
+import imgReunion   from '../Assettes/img/WhatsApp Image 2026-06-21 at 13.28.44.jpeg';
+import imgEquipe    from '../Assettes/img/WhatsApp Image 2026-06-21 at 13.28.45.jpeg';
+import imgNational  from '../Assettes/img/WhatsApp Image 2026-06-21 at 13.28.41.jpeg';
+import imgCoord     from '../Assettes/img/WhatsApp Image 2026-06-21 at 13.28.39.jpeg';
+import imgTable     from '../Assettes/img/WhatsApp Image 2026-06-21 at 13.28.43.jpeg';
+// Affiches & campagnes provinciales
+import flyerKinshasa from '../Assettes/img/hjg.jpeg';
+import flyerCitoyen  from '../Assettes/img/WhatsApp Image 2026-06-21 at 13.28.23.jpeg';
+import flyerEveil    from '../Assettes/img/WhatsApp Image 2026-06-21 at 13.28.25.jpeg';
+import flyerTshopo   from '../Assettes/img/WhatsApp Image 2026-06-21 at 13.28.20.jpeg';
+import flyerSankuru  from '../Assettes/img/WhatsApp Image 2026-06-21 at 13.28.27.jpeg';
+
 /* ── CONSTANTS ─────────────────────────────────────────────────────── */
 
 const VALUES = [
@@ -24,22 +40,20 @@ const VALUES = [
 ];
 
 const GALLERY = [
-  {
-    url: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=600&q=80',
-    caption: 'Mobilisation citoyenne',
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80',
-    caption: "Journalisme d'investigation",
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=600&q=80',
-    caption: 'Solidarité communautaire',
-  },
-  {
-    url: 'https://i0.wp.com/mbote.cd/app/uploads/2025/10/IMG_7538.jpeg?resize=420%2C280&ssl=1',
-    caption: 'Éveil patriotique',
-  },
+  { url: imgRally,     caption: 'Mobilisation — Kinshasa'       },
+  { url: imgAssemblee, caption: 'Grande assemblée citoyenne'    },
+  { url: imgReunion,   caption: 'Réunion de travail'            },
+  { url: imgTable,     caption: 'Coordination provinciale'      },
+  { url: imgEquipe,    caption: 'Équipe de la Dynamique'        },
+  { url: imgNational,  caption: 'Délégation nationale'          },
+];
+
+const CAMPAGNES = [
+  { img: flyerKinshasa, titre: 'Rencontre Kinshasa',          province: 'Kinshasa'  },
+  { img: flyerCitoyen,  titre: 'Opération Citoyen',           province: 'National'  },
+  { img: flyerEveil,    titre: 'Éveil Patriotique',           province: 'National'  },
+  { img: flyerTshopo,   titre: 'Dynamique Tshopo',            province: 'Tshopo'    },
+  { img: flyerSankuru,  titre: 'Dynamique Sankuru',           province: 'Sankuru'   },
 ];
 
 const PUB_TYPE_LABELS: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
@@ -366,18 +380,18 @@ export const SangoPage: React.FC = () => {
             <div className="relative">
               <div className="grid grid-cols-2 gap-4">
                 <img
-                  src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80"
-                  alt="Investigation"
+                  src={imgRally}
+                  alt="Mobilisation Kinshasa"
                   className="rounded-2xl w-full h-56 object-cover shadow-lg"
                 />
                 <img
-                  src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=600&q=80"
-                  alt="Communauté"
+                  src={imgEquipe}
+                  alt="Équipe de la Dynamique"
                   className="rounded-2xl w-full h-56 object-cover shadow-lg mt-8"
                 />
                 <img
-                  src="https://i0.wp.com/mbote.cd/app/uploads/2025/10/IMG_7538.jpeg?resize=420%2C280&ssl=1"
-                  alt="Mobilisation"
+                  src={imgAssemblee}
+                  alt="Grande assemblée citoyenne"
                   className="rounded-2xl w-full h-48 object-cover shadow-lg -mt-4"
                 />
                 <div className="bg-gray-900 rounded-2xl p-6 flex flex-col justify-center mt-4">
@@ -456,6 +470,54 @@ export const SangoPage: React.FC = () => {
                 <p className="text-gray-400 text-[11px] leading-relaxed hidden md:block">{desc}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══ CAMPAGNES & PRÉSENCE PROVINCIALE ═══════════════════════ */}
+      <section className="py-20 bg-white overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-10">
+            <p className="text-red-600 text-xs font-bold uppercase tracking-[0.2em] mb-2">Sur le terrain</p>
+            <h2 className="text-3xl font-black text-gray-900">Campagnes & Présence Provinciale</h2>
+            <p className="text-gray-500 text-sm mt-2">La Dynamique active dans toutes les provinces de la RDC</p>
+          </div>
+
+          {/* Scroll horizontal sur mobile, grille sur desktop */}
+          <div className="flex gap-5 overflow-x-auto pb-4 lg:grid lg:grid-cols-5 lg:overflow-visible scrollbar-hide">
+            {CAMPAGNES.map(({ img, titre, province }) => (
+              <div
+                key={titre}
+                className="group flex-shrink-0 w-64 lg:w-auto rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:-translate-y-1"
+              >
+                <div className="relative overflow-hidden bg-gray-100 aspect-[4/3]">
+                  <img
+                    src={img}
+                    alt={titre}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-3">
+                    <span className="inline-block bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full mb-1">
+                      {province}
+                    </span>
+                    <p className="text-white text-xs font-bold leading-tight">{titre}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Bande de photos terrain */}
+          <div className="mt-10 grid grid-cols-3 gap-3">
+            <div className="col-span-2 rounded-2xl overflow-hidden h-52 shadow-md">
+              <img src={imgCoord} alt="Équipe coordinateurs" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+            </div>
+            <div className="flex flex-col gap-3">
+              <div className="rounded-2xl overflow-hidden flex-1 shadow-md">
+                <img src={imgNational} alt="Membres nationaux" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -589,7 +651,7 @@ export const SangoPage: React.FC = () => {
             <p className="text-red-600 text-xs font-bold uppercase tracking-[0.2em] mb-2">En images</p>
             <h2 className="text-3xl font-black text-gray-900">Galerie</h2>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {GALLERY.map(({ url, caption }) => (
               <div key={caption} className="group relative rounded-2xl overflow-hidden aspect-square shadow-sm hover:shadow-xl transition-all">
                 <img src={url} alt={caption} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
