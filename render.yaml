@@ -1,10 +1,10 @@
 services:
   # ══════════════════════════════════════════════════════
   # BACKEND — Web Service (Node.js)
-  # URL : https://dynamiquemutombodrc-1.onrender.com
+  # URL : https://dynamiquemutombodrcbackend.onrender.com
   # ══════════════════════════════════════════════════════
   - type: web
-    name: dynamiquemutombodrc-1
+    name: dynamiquemutombodrcbackend
     runtime: node
     rootDir: backend
     buildCommand: npm install && npm run build
@@ -17,7 +17,7 @@ services:
       - key: PORT
         value: 4000
       - key: FRONTEND_URL
-        value: https://dynamiquemutombodrc.onrender.com
+        value: https://dynamiquemutombodrcfrontend.onrender.com
       - key: JWT_SECRET
         generateValue: true
       - key: JWT_REFRESH_SECRET
@@ -39,10 +39,10 @@ services:
 
   # ══════════════════════════════════════════════════════
   # FRONTEND — Static Site (React + Vite)
-  # URL : https://dynamiquemutombodrc.onrender.com
+  # URL : https://dynamiquemutombodrcfrontend.onrender.com
   # ══════════════════════════════════════════════════════
   - type: static
-    name: dynamiquemutombodrc
+    name: dynamiquemutombodrcfrontend
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
@@ -53,6 +53,6 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_URL
-        value: https://dynamiquemutombodrc-1.onrender.com/api
+        value: https://dynamiquemutombodrcbackend.onrender.com/api
       - key: VITE_SOCKET_URL
-        value: https://dynamiquemutombodrc-1.onrender.com
+        value: https://dynamiquemutombodrcbackend.onrender.com
