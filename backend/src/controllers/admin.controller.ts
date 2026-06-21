@@ -4,6 +4,8 @@ import { Report } from '../models/Report.model';
 import { Publication } from '../models/Publication.model';
 import { Comment } from '../models/Comment.model';
 import { Notification } from '../models/Notification.model';
+import { Newsletter } from '../models/Newsletter.model';
+import { Contact } from '../models/Contact.model';
 import { AuthRequest } from '../middleware/auth';
 import { logger } from '../utils/logger';
 
@@ -104,10 +106,12 @@ export const resetProvincialAdminPassword = async (req: AuthRequest, res: Respon
 
 export const getDashboard = async (_req: Request, res: Response): Promise<void> => {
   try {
-    const [totalUsers, totalReports, totalPublications] = await Promise.all([
+    const [totalUsers, totalReports, totalPublications, newsletterTotal, unreadContacts] = await Promise.all([
       User.countDocuments(),
       Report.countDocuments(),
       Publication.countDocuments(),
+      Newsletter.countDocuments({ isActive: true }),
+      Contact.countDocuments({ isRead: false }),
     ]);
 
     const [reportsByStatus, reportsByCategory, reportsByProvince] = await Promise.all([
@@ -116,7 +120,7 @@ export const getDashboard = async (_req: Request, res: Response): Promise<void> 
       Report.aggregate<AggItem>([{ $group: { _id: '$province', count: { $sum: 1 } } }, { $sort: { count: -1 } }, { $limit: 10 }]),
     ]);
 
-    const [recentReports, recentUsers, last30Days, activeProvinces] = await Promise.all([
+    const [recentReports, recentUsers, last30Days, activeProvinces, urgentPublications, recentContacts] = await Promise.all([
       Report.find().sort({ createdAt: -1 }).limit(10).populate('author', 'fullName').lean(),
       User.find().sort({ createdAt: -1 }).limit(10).select('fullName email role province createdAt').lean(),
       Report.aggregate<{ _id: string; count: number }>([
@@ -129,16 +133,23 @@ export const getDashboard = async (_req: Request, res: Response): Promise<void> 
         { $group: { _id: '$province', count: { $sum: 1 } } },
         { $sort: { count: -1 } },
       ]),
+      Publication.find({ isUrgent: true }).sort({ publishedAt: -1 }).limit(10)
+        .select('title excerpt type publishedAt author')
+        .populate('author', 'fullName')
+        .lean(),
+      Contact.find().sort({ createdAt: -1 }).limit(15).lean(),
     ]);
 
     res.json({
-      stats: { totalUsers, totalReports, totalPublications },
+      stats: { totalUsers, totalReports, totalPublications, newsletterTotal, unreadContacts },
       reportsByStatus: toStat(reportsByStatus),
       reportsByCategory: toStat(reportsByCategory),
       reportsByProvince: toStat(reportsByProvince),
       recentReports, recentUsers,
       last30Days: last30Days.map((d: AggItem) => ({ date: d._id, count: d.count })),
       activeProvinces: toStat(activeProvinces),
+      urgentPublications,
+      recentContacts,
     });
   } catch (err) {
     logger.error('Dashboard error', err);

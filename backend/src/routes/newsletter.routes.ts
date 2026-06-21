@@ -7,6 +7,8 @@ const router = Router();
 router.post('/subscribe',         ctrl.subscribe);
 router.get('/unsubscribe/:token', ctrl.unsubscribe);
 router.post('/contact',           ctrl.sendContact);
-router.get('/subscribers', authenticate, authorize('ADMIN', 'SUPERADMIN'), ctrl.getSubscribers);
+router.get('/subscribers',        authenticate, authorize('ADMIN', 'SUPERADMIN'), ctrl.getSubscribers);
+router.get('/contacts',           authenticate, authorize('ADMIN', 'SUPERADMIN'), ctrl.getContactMessages);
+router.patch('/contacts/:id/read', authenticate, authorize('ADMIN', 'SUPERADMIN'), ctrl.markContactRead);
 
 export default router;

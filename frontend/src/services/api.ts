@@ -170,6 +170,8 @@ export const newsletterAPI = {
   unsubscribe: (token: string) => api.get(`/newsletter/unsubscribe/${token}`),
   contact: (data: Record<string, unknown>) => api.post('/newsletter/contact', data),
   getSubscribers: () => api.get('/newsletter/subscribers'),
+  getContactMessages: () => api.get('/newsletter/contacts'),
+  markContactRead: (id: string) => api.patch(`/newsletter/contacts/${id}/read`),
 };
 
 // Join Requests (public)

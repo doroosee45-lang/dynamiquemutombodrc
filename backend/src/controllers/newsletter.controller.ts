@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import crypto from 'crypto';
 import { Newsletter } from '../models/Newsletter.model';
+import { Contact } from '../models/Contact.model';
 import { sendMail } from '../utils/mailer';
 import { config } from '../config';
 import { logger } from '../utils/logger';
@@ -57,12 +58,40 @@ export const getSubscribers = async (_req: Request, res: Response) => {
   }
 };
 
+export const getContactMessages = async (_req: Request, res: Response) => {
+  try {
+    const [total, unread, recent] = await Promise.all([
+      Contact.countDocuments(),
+      Contact.countDocuments({ isRead: false }),
+      Contact.find().sort({ createdAt: -1 }).limit(20).lean(),
+    ]);
+    res.json({ total, unread, messages: recent });
+  } catch (err) {
+    logger.error('Get contact messages error', err);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+};
+
+export const markContactRead = async (req: Request, res: Response) => {
+  try {
+    await Contact.findByIdAndUpdate(req.params.id, { isRead: true });
+    res.json({ message: 'Marqué comme lu' });
+  } catch {
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+};
+
 export const sendContact = async (req: Request, res: Response) => {
   try {
     const { fullName, email, subject, message } = req.body;
     const phone: string | undefined = req.body.phone || undefined;
     if (!fullName || !email || !subject || !message)
       return res.status(400).json({ message: 'Tous les champs obligatoires doivent être remplis' });
+
+    // Persist in DB so admins can read it in the dashboard
+    const isUrgent = (subject as string).toLowerCase().includes('urgent') ||
+                     (subject as string).toLowerCase().includes('signalement');
+    await Contact.create({ fullName, email, phone, subject, message, isUrgent });
 
     logger.info('Contact form submission', { fullName, email, subject });
 
