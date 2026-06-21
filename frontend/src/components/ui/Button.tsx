@@ -6,14 +6,15 @@ interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
   icon?: React.ReactNode;
+  iconPosition?: 'left' | 'right';
 }
 
 const variants = {
-  primary: 'bg-primary-600 hover:bg-primary-700 text-white shadow-sm',
+  primary:   'bg-primary-600 hover:bg-primary-700 text-white shadow-sm',
   secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700',
-  danger: 'bg-red-600 hover:bg-red-700 text-white',
-  ghost: 'hover:bg-gray-100 text-gray-600',
-  outline: 'border border-primary-600 text-primary-600 hover:bg-primary-50',
+  danger:    'bg-red-600 hover:bg-red-700 text-white',
+  ghost:     'hover:bg-gray-100 text-gray-600',
+  outline:   'border border-primary-600 text-primary-600 hover:bg-primary-50',
 };
 
 const sizes = {
@@ -23,17 +24,22 @@ const sizes = {
 };
 
 export const Button: React.FC<Props> = ({
-  variant = 'primary', size = 'md', loading, icon, children, className = '', disabled, ...props
-}) => (
-  <button
-    {...props}
-    disabled={disabled || loading}
-    className={`inline-flex items-center gap-2 font-medium rounded-lg transition-all
-      focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
-      disabled:opacity-50 disabled:cursor-not-allowed
-      ${variants[variant]} ${sizes[size]} ${className}`}
-  >
-    {loading ? <Loader2 size={16} className="animate-spin" /> : icon}
-    {children}
-  </button>
-);
+  variant = 'primary', size = 'md', loading, icon, iconPosition = 'left',
+  children, className = '', disabled, ...props
+}) => {
+  const resolvedIcon = loading ? <Loader2 size={16} className="animate-spin" /> : icon;
+  return (
+    <button
+      {...props}
+      disabled={disabled || loading}
+      className={`inline-flex items-center gap-2 font-medium rounded-lg transition-all
+        focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
+        disabled:opacity-50 disabled:cursor-not-allowed
+        ${variants[variant]} ${sizes[size]} ${className}`}
+    >
+      {iconPosition === 'left'  && resolvedIcon}
+      {children}
+      {iconPosition === 'right' && resolvedIcon}
+    </button>
+  );
+};
