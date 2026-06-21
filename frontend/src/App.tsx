@@ -30,6 +30,7 @@ import { UsersPage } from './pages/admin/UsersPage';
 import { ProvincialAdminsPage } from './pages/admin/ProvincialAdminsPage';
 import { DistrictAdminsPage } from './pages/admin/DistrictAdminsPage';
 import { TerritoirePage } from './pages/admin/TerritoirePage';
+import { EventsAdminPage } from './pages/admin/EventsAdminPage';
 import { SangoPage } from './pages/SangoPage';
 import { JoinPage } from './pages/JoinPage';
 
@@ -91,6 +92,7 @@ const App: React.FC = () => (
             <Route path="/admin/provincial-admins" element={<ProtectedRoute element={<ProvincialAdminsPage />} roles={['SUPERADMIN']} />} />
             <Route path="/admin/district-admins" element={<ProtectedRoute element={<DistrictAdminsPage />} roles={['ADMIN', 'SUPERADMIN']} />} />
             <Route path="/admin/territories" element={<ProtectedRoute element={<TerritoirePage />} roles={['ADMIN', 'SUPERADMIN', 'DISTRICT_ADMIN']} />} />
+            <Route path="/admin/events" element={<ProtectedRoute element={<EventsAdminPage />} roles={['EDITOR', 'ADMIN', 'SUPERADMIN']} />} />
           </Route>
 
           {/* Fallback */}

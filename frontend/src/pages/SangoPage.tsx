@@ -119,19 +119,55 @@ export const SangoPage: React.FC = () => {
     setMenuOpen(false);
   };
 
-  /* ── Publications live ── */
+  /* ── Publications live + persistance localStorage ── */
   const { data: pubData } = useQuery({
     queryKey: ['public-publications'],
-    queryFn: () => publicationsAPI.getAll({ limit: '6', page: '1' }).then(r => r.data),
-    staleTime: 60000,
+    queryFn: async () => {
+      const result = await publicationsAPI.getAll({ limit: '6', page: '1' });
+      const pubs = result.data?.publications;
+      if (pubs && pubs.length > 0) {
+        try { localStorage.setItem('sango_pubs', JSON.stringify(pubs)); } catch {}
+      } else {
+        try { localStorage.removeItem('sango_pubs'); } catch {}
+      }
+      return result.data;
+    },
+    initialData: () => {
+      try {
+        const stored = localStorage.getItem('sango_pubs');
+        if (!stored) return undefined;
+        const parsed = JSON.parse(stored);
+        return Array.isArray(parsed) && parsed.length > 0 ? { publications: parsed } : undefined;
+      } catch { return undefined; }
+    },
+    staleTime: 0,
+    refetchOnMount: true,
   });
   const publications = pubData?.publications ?? [];
 
-  /* ── Events live ── */
-  const { data: evtData } = useQuery({
+  /* ── Events live + persistance localStorage ── */
+  const { data: evtData, isFetching: evtFetching, isError: evtError } = useQuery({
     queryKey: ['public-events'],
-    queryFn: () => eventsAPI.getAll({ status: 'UPCOMING', limit: '4' }).then(r => r.data),
-    staleTime: 60000,
+    queryFn: async () => {
+      const result = await eventsAPI.getAll({ upcoming: 'true', limit: '4' });
+      const evts = result.data?.events;
+      if (evts && evts.length > 0) {
+        try { localStorage.setItem('sango_events', JSON.stringify(evts)); } catch {}
+      } else {
+        try { localStorage.removeItem('sango_events'); } catch {}
+      }
+      return result.data;
+    },
+    initialData: () => {
+      try {
+        const stored = localStorage.getItem('sango_events');
+        if (!stored) return undefined;
+        const parsed = JSON.parse(stored);
+        return Array.isArray(parsed) && parsed.length > 0 ? { events: parsed } : undefined;
+      } catch { return undefined; }
+    },
+    staleTime: 0,
+    refetchOnMount: true,
   });
   const events = evtData?.events ?? [];
 
@@ -654,7 +690,17 @@ export const SangoPage: React.FC = () => {
             </div>
           </div>
 
-          {events.length === 0 ? (
+          {events.length === 0 && evtFetching ? (
+            <div className="text-center py-12">
+              <div className="w-10 h-10 border-2 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+              <p className="text-gray-400 text-sm">Chargement des événements…</p>
+            </div>
+          ) : evtError ? (
+            <div className="text-center py-12">
+              <p className="text-red-500 text-sm font-medium">Impossible de charger les événements.</p>
+              <p className="text-gray-400 text-xs mt-1">Veuillez réessayer plus tard.</p>
+            </div>
+          ) : events.length === 0 ? (
             <div className="text-center py-12">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
                 <Calendar size={28} className="text-gray-300" />

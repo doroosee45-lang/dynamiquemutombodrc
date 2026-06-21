@@ -79,7 +79,8 @@ export const getPublications = async (req: Request, res: Response) => {
       Publication.countDocuments(filter),
     ]);
 
-    res.json({ publications, pagination: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) } });
+    const mapped = publications.map(p => ({ ...p, id: p._id.toString() }));
+    res.json({ publications: mapped, pagination: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) } });
   } catch {
     res.status(500).json({ message: 'Erreur serveur' });
   }
@@ -107,7 +108,7 @@ export const getPublication = async (req: Request, res: Response) => {
 
     await Publication.findByIdAndUpdate(req.params.id, { $inc: { viewCount: 1 } });
 
-    res.json({ ...pub, comments: commentsWithReplies, _count: { comments: comments.length } });
+    res.json({ ...pub, id: pub._id.toString(), comments: commentsWithReplies, _count: { comments: comments.length } });
   } catch {
     res.status(500).json({ message: 'Erreur serveur' });
   }

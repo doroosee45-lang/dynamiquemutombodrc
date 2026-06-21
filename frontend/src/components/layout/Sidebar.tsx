@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
   Home, AlertTriangle, Newspaper, Map, Megaphone, MessageSquare,
   Lightbulb, LogOut, Users, BarChart2, Shield, MapPin, Layers, Building2,
-  ChevronLeft, ChevronRight, User, X
+  ChevronLeft, ChevronRight, User, X, CalendarDays
 } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
 import { useUIStore } from '@/store/ui.store';
@@ -21,6 +21,7 @@ const navItems = [
   { to: '/campaigns',               icon: Megaphone,     label: 'Campagnes',           roles: ALL },
   { to: '/chat',                    icon: MessageSquare, label: 'Communauté',          roles: ALL },
   { to: '/innovations',             icon: Lightbulb,     label: 'Innovation Jeunes',   roles: ALL },
+  { to: '/admin/events',            icon: CalendarDays,  label: 'Gérer Événements',    roles: ['EDITOR','ADMIN','SUPERADMIN'] },
   { to: '/admin',                   icon: BarChart2,     label: 'Dashboard Admin',     roles: ['MODERATOR','EDITOR','DISTRICT_ADMIN','ADMIN','SUPERADMIN'] },
   { to: '/admin/users',             icon: Users,         label: 'Gestion Membres',     roles: ['DISTRICT_ADMIN','ADMIN','SUPERADMIN'] },
   { to: '/admin/provincial-admins', icon: MapPin,        label: 'Admins Provinciaux',  roles: ['SUPERADMIN'] },

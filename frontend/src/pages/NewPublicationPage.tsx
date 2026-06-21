@@ -44,6 +44,7 @@ export const NewPublicationPage: React.FC = () => {
     onSuccess: () => {
       toast.success('Publication créée avec succès');
       queryClient.invalidateQueries({ queryKey: ['publications'] });
+      queryClient.invalidateQueries({ queryKey: ['public-publications'] });
       navigate('/feed');
     },
     onError: () => toast.error('Erreur lors de la publication'),
