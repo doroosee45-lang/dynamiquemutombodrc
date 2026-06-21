@@ -15,25 +15,26 @@ export const redis = new Redis(config.redisUrl, {
 });
 
 redis.on('connect', () => { redisAvailable = true; logger.info('Redis connected'); });
-redis.on('error', (err) => {
-  if (redisAvailable) logger.warn('Redis unavailable — degraded mode (no refresh tokens/cache)', { code: (err as NodeJS.ErrnoException).code });
-  redisAvailable = false;
-});
+redis.on('error', () => { redisAvailable = false; }); // handled in app.ts startup catch
 
-export const setCache = async (key: string, value: unknown, ttl = 300) => {
-  await redis.setex(key, ttl, JSON.stringify(value));
+export const setCache = async (key: string, value: unknown, ttl = 300): Promise<void> => {
+  try { await redis.setex(key, ttl, JSON.stringify(value)); } catch { /* Redis offline */ }
 };
 
 export const getCache = async <T>(key: string): Promise<T | null> => {
-  const data = await redis.get(key);
-  return data ? JSON.parse(data) : null;
+  try {
+    const data = await redis.get(key);
+    return data ? JSON.parse(data) : null;
+  } catch { return null; }
 };
 
-export const deleteCache = async (key: string) => {
-  await redis.del(key);
+export const deleteCache = async (key: string): Promise<void> => {
+  try { await redis.del(key); } catch { /* Redis offline */ }
 };
 
-export const deleteCachePattern = async (pattern: string) => {
-  const keys = await redis.keys(pattern);
-  if (keys.length > 0) await redis.del(...keys);
+export const deleteCachePattern = async (pattern: string): Promise<void> => {
+  try {
+    const keys = await redis.keys(pattern);
+    if (keys.length > 0) await redis.del(...keys);
+  } catch { /* Redis offline */ }
 };

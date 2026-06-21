@@ -5,7 +5,7 @@ import QRCode from 'qrcode';
 import { User } from '../models/User.model';
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../utils/jwt';
 import { sendVerificationEmail, sendPasswordResetEmail } from '../utils/email';
-import { redis } from '../utils/redis';
+import { storeRefreshToken, getRefreshToken, deleteRefreshToken, store2FASetup, get2FASetup, delete2FASetup } from '../utils/tokenStore';
 import { logger } from '../utils/logger';
 import { AuthRequest } from '../middleware/auth';
 
@@ -66,7 +66,7 @@ export const login = async (req: Request, res: Response) => {
     const accessToken = signAccessToken(payload);
     const refreshToken = signRefreshToken(payload);
 
-    await redis.setex(`refresh:${user._id}`, 7 * 24 * 3600, refreshToken).catch(() => null);
+    await storeRefreshToken(user._id.toString(), refreshToken);
 
     user.lastLoginAt = new Date();
     user.lastLoginIp = req.ip;
@@ -89,7 +89,7 @@ export const refreshToken = async (req: Request, res: Response) => {
     if (!token) return res.status(401).json({ message: 'Refresh token manquant' });
 
     const payload = verifyRefreshToken(token);
-    const stored = await redis.get(`refresh:${payload.userId}`).catch(() => null);
+    const stored = await getRefreshToken(payload.userId);
     if (stored && stored !== token) return res.status(401).json({ message: 'Refresh token invalide' });
 
     const accessToken = signAccessToken({ userId: payload.userId, role: payload.role, province: payload.province });
@@ -101,7 +101,7 @@ export const refreshToken = async (req: Request, res: Response) => {
 
 export const logout = async (req: AuthRequest, res: Response) => {
   try {
-    if (req.user) await redis.del(`refresh:${req.user.userId}`).catch(() => null);
+    if (req.user) await deleteRefreshToken(req.user.userId);
     res.json({ message: 'Déconnexion réussie' });
   } catch {
     res.status(500).json({ message: 'Erreur serveur' });
@@ -177,7 +177,7 @@ export const setup2FA = async (req: AuthRequest, res: Response) => {
     const secret = authenticator.generateSecret();
     const otpauth = authenticator.keyuri(req.user!.userId, 'Dynamique RDC', secret);
     const qrCode = await QRCode.toDataURL(otpauth);
-    await redis.setex(`2fa_setup:${req.user!.userId}`, 300, secret).catch(() => null);
+    await store2FASetup(req.user!.userId, secret);
     res.json({ secret, qrCode });
   } catch {
     res.status(500).json({ message: 'Erreur serveur' });
@@ -187,14 +187,14 @@ export const setup2FA = async (req: AuthRequest, res: Response) => {
 export const verify2FA = async (req: AuthRequest, res: Response) => {
   try {
     const { code } = req.body;
-    const secret = await redis.get(`2fa_setup:${req.user!.userId}`).catch(() => null);
+    const secret = await get2FASetup(req.user!.userId);
     if (!secret) return res.status(400).json({ message: 'Session 2FA expirée. Recommencez.' });
 
     const valid = authenticator.verify({ token: code, secret });
     if (!valid) return res.status(400).json({ message: 'Code invalide' });
 
     await User.findByIdAndUpdate(req.user!.userId, { twoFAEnabled: true, twoFASecret: secret });
-    await redis.del(`2fa_setup:${req.user!.userId}`).catch(() => null);
+    await delete2FASetup(req.user!.userId);
     res.json({ message: '2FA activé avec succès.' });
   } catch {
     res.status(500).json({ message: 'Erreur serveur' });

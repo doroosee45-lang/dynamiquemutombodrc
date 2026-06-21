@@ -109,9 +109,9 @@ const start = async () => {
     process.exit(1);
   }
 
-  // Redis — optional
-  redis.connect().catch((err: Error) => {
-    logger.warn('Redis unavailable — refresh tokens and caching disabled', { message: err.message });
+  // Redis — optional, auth falls back to MongoDB when unavailable
+  redis.connect().catch(() => {
+    logger.info('Redis indisponible — mode dégradé (tokens via MongoDB)');
   });
 
   httpServer.listen(config.port, () => {
